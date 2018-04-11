@@ -1,4 +1,5 @@
 ﻿#include<stdio.h>
+#include<stdlib.h>
 #include<fcntl.h> 
 #include<io.h>    
 #include<string.h>
@@ -15,51 +16,74 @@ struct SV{
 	wchar_t** Sothich;
 };
 
-void DocFILECSV(FILE* f, SV &A, int &demsothich)
+void TaoHTML(SV&, int);
+
+void DocFILECSV(FILE* &f)
 {
-	f = fopen("1712908.csv", "rt");
 	_setmode(_fileno(f), _O_U8TEXT);
+	wchar_t** p = (wchar_t**)malloc(50 * sizeof(wchar_t*));
+	int dem = 0;
+	int demsothich;
 	if (f != NULL)
 	{
-		demsothich = 0;
-		wchar_t* flag[20];
-		wchar_t* del;
-		wchar_t s[500];
-		fgetws(s, 500, f);
-		s[wcslen(s) - 1] = L'\0';
-		del = wcstok(s, L",\"");
-		A.MSSV = wcstok(NULL, L",\"");
-		A.HVTen = wcstok(NULL, L",\"");
-		A.Khoa = wcstok(NULL, L",\"");
-		A.KhoaHoc = wcstok(NULL, L",\"");
-		A.NgaySinh = wcstok(NULL, L",\"");
-		A.Hinhanh = wcstok(NULL, L",\"");
-		A.Motabanthan = wcstok(NULL, L",\"");
-		flag[demsothich] = wcstok(NULL, L",\"");
-		while (flag[demsothich] != NULL)
+		while (!feof(f))
 		{
-			printf("%d\n", demsothich);
-			demsothich++;
-			flag[demsothich] = wcstok(NULL, L",\"");
+			p[dem] = (wchar_t*)malloc(1000 * sizeof(wchar_t));
+			fgetws(*(p + dem), 1000, f);
+			p[dem][wcslen(p[dem]) - 1] = L'\0';
+			dem++;
 		}
-		printf("%d\n", demsothich);
-		A.Sothich = new wchar_t*[demsothich];
-		for (int i = 0; i < demsothich; i++)
+		for (int i = 0; i < dem - 1;i++)
 		{
-			*(A.Sothich + i) = flag[i];
+			SV A;
+			int demsothich = 0;
+			wchar_t* flag[10];
+			if (i == 0)
+			{
+				wchar_t* del;
+				del = wcstok(p[i], L",\"");
+				A.MSSV = wcstok(NULL, L",\"");
+			}
+			else
+			{
+				A.MSSV = wcstok(p[i], L",\"");
+			}
+			A.HVTen = wcstok(NULL, L",\"");
+			A.Khoa = wcstok(NULL, L",\"");
+			A.KhoaHoc = wcstok(NULL, L",\"");
+			A.NgaySinh = wcstok(NULL, L",\"");
+			A.Hinhanh = wcstok(NULL, L",\"");
+			A.Motabanthan = wcstok(NULL, L",\"");
+			flag[demsothich] = wcstok(NULL, L",\"");
+			while (flag[demsothich] != NULL)
+			{
+				demsothich++;
+				flag[demsothich] = wcstok(NULL, L",\"");
+			}
+			A.Sothich =(wchar_t**)malloc(demsothich * sizeof(wchar_t*));
+			for (int j = 0; j < demsothich; j++)
+			{
+				*(A.Sothich + j) = flag[j];
+			}
+			TaoHTML(A, demsothich);
+			delete[]A.Sothich;
 		}
 	}
-	fclose(f);
+	for (int i = 0; i < dem - 1; i++)
+	{
+		delete[] * (p + i);
+	}
+	delete[]p;
 }
 
-void TaoHTML(FILE* f, SV A)
+void TaoHTML(SV &A, int n)
 {
 	wchar_t s0[50] = L"WEBSITE\\";
 	wchar_t s1[20];
 	wcscpy(s1, A.MSSV);
 	wcscat(s1, L".html");
 	wcscat(s0, s1);
-	f = _wfopen(s0, L"wt");
+	FILE* f = _wfopen(s0, L"wt");
 	_setmode(_fileno(f), _O_U8TEXT);
 	if (f != NULL)
 	{
@@ -68,7 +92,7 @@ void TaoHTML(FILE* f, SV A)
 		fwprintf(f, L"<head>\n");
 		fwprintf(f, L"<meta http-equiv = \"Content-Type\" content = \"text/html; charset=utf-8\" / >\n");
 		fwprintf(f, L"<link rel = \"stylesheet\" type = \"text/css\" href = \"personal.css\" / >\n");
-		fwprintf(f, L"<title>HCMUS - Nguyễn Văn A</title>\n");
+		fwprintf(f, L"<title>HCMUS - %ls</title>\n",A.HVTen);
 		fwprintf(f, L"</head>\n");
 		fwprintf(f, L"<body>\n");
 		fwprintf(f, L"<div class = \"Layout_container\">\n");
@@ -82,21 +106,21 @@ void TaoHTML(FILE* f, SV A)
 		fwprintf(f, L"<div class = \"Layout_MainContents\">\n");
 		fwprintf(f, L"<!--Begin Below Banner Region-->\n");
 		fwprintf(f, L"<div class = \"Personal_Main_Information\">\n");
-		fwprintf(f, L"<!--Begin Thông tin cá nhân c ? a th ? y cô---------------------------------------------------------------------------------------- - -->\n");
+		fwprintf(f, L"<!--Begin Thông tin cá nhân của thầy cô---------------------------------------------------------------------------------------- - -->\n");
 		fwprintf(f, L"<div class = \"Personal_Location\">\n");
 		fwprintf(f, L"<img src = \"Images/LogoFooter.jpg\" width = \"27\" height = \"33\" / >\n");
-		fwprintf(f, L"<span class = \"Personal_FullName\">NGUYỄN VĂN A - 1212123</span>\n");
-		fwprintf(f, L"<div class = \"Personal_Department\">KHOA CÔNG NGHỆ THÔNG TIN</div>\n");
-		fwprintf(f, L"<br/>\n");
+		fwprintf(f, L"<span class = \"Personal_FullName\">%ls - %ls</span>\n",A.HVTen,A.MSSV);
+		fwprintf(f, L"<div class = \"Personal_Department\">%ls</div>\n",A.Khoa);
+		fwprintf(f, L"<br />\n");
 		fwprintf(f, L"<div class = \"Personal_Phone\">\n");
-		fwprintf(f, L"Email: nva@gmail.com\n");
+		fwprintf(f, L"Khóa : %ls\n",A.KhoaHoc);
 		fwprintf(f, L"</div>\n");
-		fwprintf(f, L"<br/>\n");
-		fwprintf(f, L"<br/>\n");
+		fwprintf(f, L"<br />\n");
+		fwprintf(f, L"<br />\n");
 		fwprintf(f, L"</div>\n");
-		fwprintf(f, L"<!--End Thông tin cá nhân c ? a th ? y cô---------------------------------------------------------------------------------------- - -->\n");
+		fwprintf(f, L"<!--End Thông tin cá nhân của thầy cô---------------------------------------------------------------------------------------- - -->\n");
 		fwprintf(f, L"<div class = \"Personal_HinhcanhanKhung\">\n");
-		fwprintf(f, L"<img src = \"Images/HinhCaNhan.jpg\" class = \"Personal_Hinhcanhan\" / >\n");
+		fwprintf(f, L"<img src = \"Images/%ls\" class = \"Personal_Hinhcanhan\" / >\n",A.Hinhanh);
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<!--End Below Banner Region-->\n");
@@ -109,23 +133,25 @@ void TaoHTML(FILE* f, SV A)
 		fwprintf(f, L"<div class = \"InfoGroup\">Thông tin cá nhân</div>\n");
 		fwprintf(f, L"<div>\n");
 		fwprintf(f, L"<ul class = \"TextInList\">\n");
-		fwprintf(f, L"<li>Họ và tên : Nguyễn Văn A</li>\n");
-		fwprintf(f, L"<li>MSSV : 1212123</li>\n");
-		fwprintf(f, L"<li>Sinh viên khoa Công nghệ thông tin</li>\n");
-		fwprintf(f, L"<li>Ngày sinh : 20 / 01 / 1994</li>\n");
-		fwprintf(f, L"<li>Email : nva@gmail.com</li>\n");
+		fwprintf(f, L"<li>Họ và tên : %ls</li>\n",A.HVTen);
+		fwprintf(f, L"<li>MSSV : %ls</li>\n",A.MSSV);
+		fwprintf(f, L"<li>Sinh viên khoa %ls</li>\n",A.Khoa);
+		fwprintf(f, L"<li>Khóa : %ls</li>\n",A.KhoaHoc);
+		fwprintf(f, L"<li>Ngày sinh : %ls</li>\n",A.NgaySinh);
 		fwprintf(f, L"</ul>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<div class = \"InfoGroup\">Sở thích</div>\n");
 		fwprintf(f, L"<div>\n");
 		fwprintf(f, L"<ul class = \"TextInList\">\n");
-		fwprintf(f, L"<li>Âm nhạc : POP, Balad</li>\n");
-		fwprintf(f, L"<li>Ẩm thực : bún riêu, bún thịt nướng</li>\n");
+		for (int i = 0; i < n; i++)
+		{
+			fwprintf(f, L"	<li>%ls</li>\n", *(A.Sothich + i));
+		}
 		fwprintf(f, L"</ul>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<div class = \"InfoGroup\">Mô tả</div>\n");
 		fwprintf(f, L"<div class = \"Description\">\n");
-		fwprintf(f, L"Tôi là một người rất thân thiện.\n");
+		fwprintf(f, L"%ls\n",A.Motabanthan);
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"\n");
 		fwprintf(f, L"</div>\n");
@@ -138,11 +164,11 @@ void TaoHTML(FILE* f, SV A)
 		fwprintf(f, L"<br/>\n");
 		fwprintf(f, L"<img src = \"Images/LogoFooter_gray.jpg\" width = \"34\" height = \"41\" / ><br/>\n");
 		fwprintf(f, L"<br/>\n");
-		fwprintf(f, L"@2013</br>\n");
+		fwprintf(f, L"@2018</br>\n");
 		fwprintf(f, L"Đồ án giữ kỳ</br>\n");
 		fwprintf(f, L"Kỹ thuật lập trình</br>\n");
-		fwprintf(f, L"TH2012 / 03</br>\n");
-		fwprintf(f, L"MSSV - Tên sinh viên thực hiện</br>\n");
+		fwprintf(f, L"TH2018 / 03</br>\n");
+		fwprintf(f, L"%1712908 - Đặng Xuân Vinh</br>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<!--End Layout Footer-->\n");
@@ -155,12 +181,7 @@ void TaoHTML(FILE* f, SV A)
 
 void main()
 {
-	int n;
-	FILE* f = NULL;
-	FILE* f1 = NULL;
-	SV A;
-	//_setmode(_fileno(stdin), _O_U8TEXT);
-	//_setmode(_fileno(stdout), _O_U8TEXT);
-	DocFILECSV(f, A, n);
-	TaoHTML(f1, A);
+	FILE* f1 = fopen("Book1.csv", "rt");
+	DocFILECSV(f1);
+	fclose(f1);
 }
