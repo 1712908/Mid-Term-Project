@@ -21,7 +21,7 @@ void TaoHTML(SV&, int);
 void DocFILECSV(FILE* &f)
 {
 	_setmode(_fileno(f), _O_U8TEXT);
-	wchar_t** p = (wchar_t**)malloc(50 * sizeof(wchar_t*));
+	wchar_t** p = (wchar_t**)malloc(20 * sizeof(wchar_t*));
 	int dem = 0;
 	int demsothich;
 	if (f != NULL)
@@ -33,7 +33,8 @@ void DocFILECSV(FILE* &f)
 			p[dem][wcslen(p[dem]) - 1] = L'\0';
 			dem++;
 		}
-		for (int i = 0; i < dem - 1;i++)
+		dem--;
+		for (int i = 0; i < dem; i++)
 		{
 			SV A;
 			int demsothich = 0;
@@ -69,7 +70,7 @@ void DocFILECSV(FILE* &f)
 			delete[]A.Sothich;
 		}
 	}
-	for (int i = 0; i < dem - 1; i++)
+	for (int i = 0; i < dem; i++)
 	{
 		delete[] * (p + i);
 	}
@@ -168,7 +169,7 @@ void TaoHTML(SV &A, int n)
 		fwprintf(f, L"Đồ án giữ kỳ</br>\n");
 		fwprintf(f, L"Kỹ thuật lập trình</br>\n");
 		fwprintf(f, L"TH2018 / 03</br>\n");
-		fwprintf(f, L"%1712908 - Đặng Xuân Vinh</br>\n");
+		fwprintf(f, L"1712908 - Đặng Xuân Vinh</br>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<!--End Layout Footer-->\n");
@@ -181,7 +182,7 @@ void TaoHTML(SV &A, int n)
 
 void main()
 {
-	FILE* f1 = fopen("Book1.csv", "rt");
+	FILE* f1 = fopen("Thongtinsinhvien.csv", "rt");
 	DocFILECSV(f1);
 	fclose(f1);
 }
