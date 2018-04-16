@@ -5,7 +5,8 @@
 #include<string.h>
 #include<wchar.h>
 
-struct SV{
+struct SV
+{
 	wchar_t* MSSV;
 	wchar_t* HVTen;
 	wchar_t* Khoa;
@@ -39,27 +40,35 @@ void DocFILECSV(FILE* &f)
 			SV A;
 			int demsothich = 0;
 			wchar_t* flag[10];
+			wchar_t* del;
 			if (i == 0)
 			{
-				wchar_t* del;
-				del = wcstok(p[i], L",\"");
-				A.MSSV = wcstok(NULL, L",\"");
+				del = wcstok(p[i], L"\"");
+				A.MSSV = wcstok(NULL, L"\"");
 			}
 			else
 			{
-				A.MSSV = wcstok(p[i], L",\"");
+				A.MSSV = wcstok(p[i], L"\"");
 			}
-			A.HVTen = wcstok(NULL, L",\"");
-			A.Khoa = wcstok(NULL, L",\"");
-			A.KhoaHoc = wcstok(NULL, L",\"");
-			A.NgaySinh = wcstok(NULL, L",\"");
-			A.Hinhanh = wcstok(NULL, L",\"");
-			A.Motabanthan = wcstok(NULL, L",\"");
-			flag[demsothich] = wcstok(NULL, L",\"");
+			del = wcstok(NULL, L"\"");
+			A.HVTen = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.Khoa = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.KhoaHoc = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.NgaySinh = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.Hinhanh = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.Motabanthan = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			flag[demsothich] = wcstok(NULL, L"\"");
 			while (flag[demsothich] != NULL)
 			{
 				demsothich++;
-				flag[demsothich] = wcstok(NULL, L",\"");
+				del = wcstok(NULL, L"\"");
+				flag[demsothich] = wcstok(NULL, L"\"");
 			}
 			A.Sothich =(wchar_t**)malloc(demsothich * sizeof(wchar_t*));
 			for (int j = 0; j < demsothich; j++)
