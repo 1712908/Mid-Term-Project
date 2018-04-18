@@ -13,6 +13,7 @@ struct SV
 	wchar_t* KhoaHoc;
 	wchar_t* NgaySinh;
 	wchar_t* Hinhanh;
+	wchar_t* Email;
 	wchar_t* Motabanthan;
 	wchar_t** Sothich;
 };
@@ -24,7 +25,6 @@ void DocFILECSV(FILE* &f)
 	_setmode(_fileno(f), _O_U8TEXT);
 	wchar_t** p = (wchar_t**)malloc(20 * sizeof(wchar_t*));
 	int dem = 0;
-	int demsothich;
 	if (f != NULL)
 	{
 		while (!feof(f))
@@ -60,6 +60,8 @@ void DocFILECSV(FILE* &f)
 			A.NgaySinh = wcstok(NULL, L"\"");
 			del = wcstok(NULL, L"\"");
 			A.Hinhanh = wcstok(NULL, L"\"");
+			del = wcstok(NULL, L"\"");
+			A.Email = wcstok(NULL, L"\"");
 			del = wcstok(NULL, L"\"");
 			A.Motabanthan = wcstok(NULL, L"\"");
 			del = wcstok(NULL, L"\"");
@@ -123,7 +125,7 @@ void TaoHTML(SV &A, int n)
 		fwprintf(f, L"<div class = \"Personal_Department\">%ls</div>\n",A.Khoa);
 		fwprintf(f, L"<br />\n");
 		fwprintf(f, L"<div class = \"Personal_Phone\">\n");
-		fwprintf(f, L"Khóa : %ls\n",A.KhoaHoc);
+		fwprintf(f, L"Email : %ls\n",A.Email);
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<br />\n");
 		fwprintf(f, L"<br />\n");
@@ -148,6 +150,7 @@ void TaoHTML(SV &A, int n)
 		fwprintf(f, L"<li>Sinh viên khoa %ls</li>\n",A.Khoa);
 		fwprintf(f, L"<li>Khóa : %ls</li>\n",A.KhoaHoc);
 		fwprintf(f, L"<li>Ngày sinh : %ls</li>\n",A.NgaySinh);
+		fwprintf(f, L"<li>Email : <a href=\"mailto:%ls\" target=\"_blank\" title=\"Email cá nhân\">%ls</a></li>\n", A.Email, A.Email);
 		fwprintf(f, L"</ul>\n");
 		fwprintf(f, L"</div>\n");
 		fwprintf(f, L"<div class = \"InfoGroup\">Sở thích</div>\n");
