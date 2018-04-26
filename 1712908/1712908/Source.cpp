@@ -18,90 +18,214 @@ struct SV
 	wchar_t** Sothich;
 };
 
-void TaoHTML(SV&, int);
+void KiemTraNgoac(wchar_t*);
+void TaoHTML(SV, int);
+void SaoChepChuoi(wchar_t*, wchar_t*);
+void XoaNgoacKep(wchar_t*);
+void GhepChuoiDauPhay(wchar_t*, wchar_t*);
+void GhepChuoi(wchar_t*, wchar_t*);
 
-void DocFILECSV(FILE* f)
+void DocFILECSV(char s[])
 {
-	_setmode(_fileno(f), _O_U8TEXT);
-	wchar_t** p = (wchar_t**)malloc(20 * sizeof(wchar_t*));
+	FILE* f = fopen(s,"rt");
+	wchar_t** p = (wchar_t**)malloc(0 * sizeof(wchar_t*));
 	int dem = 0;
 	if (f != NULL)
 	{
+		_setmode(_fileno(f), _O_U8TEXT);
 		while (!feof(f))
 		{
-			p[dem] = (wchar_t*)malloc(1000 * sizeof(wchar_t));
-			fgetws(*(p + dem), 1000, f);
-			p[dem][wcslen(p[dem]) - 1] = L'\0';
+			p = (wchar_t**)realloc(p, (dem + 1)*sizeof(wchar_t*));
+			*(p + dem) = (wchar_t*)malloc(600 * sizeof(wchar_t));
+			fgetws(*(p + dem), 600, f);
+			p[dem][wcslen(p[dem])] = L'\0';
 			dem++;
 		}
-		dem--;
+		for (int i = 0; i < dem - 1; i++) /*Xoa ki tu \n*/
+		{
+			p[i][wcslen(p[i]) - 1] = '\0';
+		}
+		wchar_t s3[] = L",";
 		for (int i = 0; i < dem; i++)
 		{
 			SV A;
 			int demsothich = 0;
-			wchar_t* flag[10];
-			wchar_t* del;
+			int n = 1;
+			wchar_t** sothich = (wchar_t**)malloc(0 * sizeof(wchar_t*));
+			wchar_t* a;
+			wchar_t** flag;
 			if (i == 0)
 			{
-				del = wcstok(p[i], L"\"");
-				A.MSSV = wcstok(NULL, L"\"");
+				wchar_t* thaythe1;
+				wchar_t thaythe[15];
+				thaythe1 = wcstok(p[i], s3);
+				SaoChepChuoi(thaythe, thaythe1);
+				int m = wcslen(thaythe);
+				*(thaythe + m) = '\"';
+				*(thaythe + m + 1) = '\0';
+				XoaNgoacKep(thaythe); /*Xoa ki tu dau tien cua file*/
+				A.MSSV = thaythe;
 			}
 			else
 			{
-				A.MSSV = wcstok(p[i], L"\"");
+				A.MSSV = wcstok(p[i], s3);
 			}
-			del = wcstok(NULL, L"\"");
-			A.HVTen = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.Khoa = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.KhoaHoc = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.NgaySinh = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.Hinhanh = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.Email = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			A.Motabanthan = wcstok(NULL, L"\"");
-			del = wcstok(NULL, L"\"");
-			flag[demsothich] = wcstok(NULL, L"\"");
-			while (flag[demsothich] != NULL)
+			KiemTraNgoac(A.MSSV);
+			A.HVTen = wcstok(NULL, s3);
+			KiemTraNgoac(A.HVTen);
+			A.Khoa = wcstok(NULL, s3);
+			KiemTraNgoac(A.Khoa);
+			A.KhoaHoc = wcstok(NULL, s3);
+			KiemTraNgoac(A.KhoaHoc);
+			A.NgaySinh = wcstok(NULL, s3);
+			KiemTraNgoac(A.NgaySinh);
+			A.Hinhanh = wcstok(NULL, s3);
+			KiemTraNgoac(A.Hinhanh);
+			A.Email = wcstok(NULL, s3);
+			KiemTraNgoac(A.Email);
+			a = wcstok(NULL, s3);
+			if ((*a == '\"') && (*(a + wcslen(a) - 1) == '\"'))
+			{
+				XoaNgoacKep(a);
+				A.Motabanthan = a;
+			}
+			else
+			{
+				if (*a == '\"')
+				{
+					n = 1;
+					wchar_t chuoi[500];
+					flag = (wchar_t**)malloc(n*sizeof(wchar_t*));
+					*flag = a;
+					do
+					{
+						n++;
+						a = wcstok(NULL, s3);
+						flag = (wchar_t**)realloc(flag, n*sizeof(wchar_t*));
+						*(flag + n - 1) = a;
+					} while (*(a + wcslen(a) - 1) != '\"');
+					SaoChepChuoi(chuoi, *flag);
+					for (int i = 1; i < n; i++)
+					{
+						GhepChuoiDauPhay(chuoi, *(flag + i));
+					}
+					XoaNgoacKep(chuoi);
+					A.Motabanthan = chuoi;
+					free(flag);
+				}
+				else
+				{
+					A.Motabanthan = a;
+				}
+			}
+			sothich = (wchar_t**)realloc(sothich, (demsothich + 1)*sizeof(wchar_t*));
+			a = wcstok(NULL, s3);
+			if ((*a == '\"') && (*(a + wcslen(a) - 1) == '\"'))
+			{
+				XoaNgoacKep(a);
+				sothich[demsothich] = a;
+			}
+			else
+			{
+				if (*a == '\"')
+				{
+					n = 1;
+					wchar_t chuoi[500];
+					flag = (wchar_t**)malloc(n*sizeof(wchar_t*));
+					*flag = a;
+					do
+					{
+						n++;
+						a = wcstok(NULL, s3);
+						flag = (wchar_t**)realloc(flag, n*sizeof(wchar_t*));
+						*(flag + n - 1) = a;
+					} while (*(a + wcslen(a) - 1) != '\"');
+					SaoChepChuoi(chuoi, *flag);
+					for (int i = 1; i < n; i++)
+					{
+						GhepChuoiDauPhay(chuoi, *(flag + i));
+					}
+					XoaNgoacKep(chuoi);
+					sothich[demsothich] = chuoi;
+					free(flag);
+				}
+				else
+				{
+					sothich[demsothich] = a;
+				}
+			}
+			while (a != NULL)
 			{
 				demsothich++;
-				del = wcstok(NULL, L"\"");
-				flag[demsothich] = wcstok(NULL, L"\"");
+				sothich = (wchar_t**)realloc(sothich, (demsothich + 1)*sizeof(wchar_t*));
+				a = wcstok(NULL, s3);
+				if (a != NULL)
+				{
+					if ((*a == '\"') && (*(a + wcslen(a) - 1) == '\"'))
+					{
+						XoaNgoacKep(a);
+						sothich[demsothich] = a;
+					}
+					else
+					{
+						if (*a == '\"')
+						{
+							n = 1;
+							wchar_t chuoi[500];
+							flag = (wchar_t**)malloc(n*sizeof(wchar_t*));
+							*flag = a;
+							do
+							{
+								n++;
+								a = wcstok(NULL, s3);
+								flag = (wchar_t**)realloc(flag, n*sizeof(wchar_t*));
+								*(flag + n - 1) = a;
+							} while (*(a + wcslen(a) - 1) != '\"');
+							SaoChepChuoi(chuoi, *flag);
+							for (int i = 1; i < n; i++)
+							{
+								GhepChuoiDauPhay(chuoi, *(flag + i));
+							}
+							XoaNgoacKep(chuoi);
+							sothich[demsothich] = chuoi;
+							free(flag);
+						}
+						else
+						{
+							sothich[demsothich] = a;
+						}
+					}
+				}
 			}
 			A.Sothich =(wchar_t**)malloc(demsothich * sizeof(wchar_t*));
 			for (int j = 0; j < demsothich; j++)
 			{
-				*(A.Sothich + j) = flag[j];
+				*(A.Sothich + j) = sothich[j];
 			}
 			TaoHTML(A, demsothich);
 			free(A.Sothich);
+			free(sothich);
+		}
+		for (int i1 = 0; i1 < dem; i1++)
+		{
+			free(*(p + i1));
 		}
 		fclose(f);
-	}
-	for (int i = 0; i < dem; i++)
-	{
-		free(*(p + i));
 	}
 	free(p);
 }
 
-void TaoHTML(SV &A, int n)
+void TaoHTML(SV A, int n)
 {
 	wchar_t s0[50] = L"WEBSITE\\";
-	wchar_t s1[20];
-	wcscpy(s1, A.MSSV);
-	wcscat(s1, L".html");
-	wcscat(s0, s1);
+	GhepChuoi(s0, A.MSSV);
+	GhepChuoi(s0, L".html");
 	FILE* f = _wfopen(s0, L"wt");
 	FILE* f1 = fopen("WEBSITE\\Template.html", "rt");
-	_setmode(_fileno(f1), _O_U8TEXT);
-	_setmode(_fileno(f), _O_U8TEXT);
 	if ((f != NULL) && (f1 != NULL))
 	{
+		_setmode(_fileno(f1), _O_U8TEXT);
+		_setmode(_fileno(f), _O_U8TEXT);
 		wchar_t* check;
 		wchar_t flag[500];
 		wchar_t s1[] = L"Họ và tên";
@@ -116,6 +240,7 @@ void TaoHTML(SV &A, int n)
 		wchar_t s10[] = L"class=\"Personal_Department\"";
 		wchar_t s11[] = L"class=\"Personal_FullName\"";
 		wchar_t s12[] = L"<title>";
+		wchar_t s13[] = L"Khóa:";
 		while (!feof(f1))
 		{
 			int tieptuc = 1;
@@ -194,19 +319,25 @@ void TaoHTML(SV &A, int n)
 			check = wcswcs(flag, s10);
 			if ((check != NULL) && (tieptuc))
 			{
-				fwprintf(f, L"<div class=\"Personal_Department\">%ls</div>\n", A.Khoa);
+				fwprintf(f, L"<div class=\"Personal_Department\">KHOA %ls</div>\n", A.Khoa);
 				tieptuc = 0;
 			}
 			check = wcswcs(flag, s11);
 			if ((check != NULL) && (tieptuc))
 			{
-				fwprintf(f, L"<span class=\"Personal_FullName\">%ls - %ls</span>",A.HVTen,A.MSSV);
+				fwprintf(f, L"<span class=\"Personal_FullName\">%ls - %ls</span>\n",A.HVTen,A.MSSV);
 				tieptuc = 0;
 			}
 			check = wcswcs(flag, s12);
 			if ((check != NULL) && (tieptuc))
 			{
 				fwprintf(f, L"<title>HCMUS - %ls</title>\n", A.HVTen);
+				tieptuc = 0;
+			}
+			check = wcswcs(flag, s13);
+			if ((check != NULL) && (tieptuc))
+			{
+				fwprintf(f, L"<li>Khóa: %ls</li>\n", A.KhoaHoc);
 				tieptuc = 0;
 			}
 			if (tieptuc) fwprintf(f, L"%ls\n", flag);
@@ -216,8 +347,58 @@ void TaoHTML(SV &A, int n)
 	}
 }
 
+void KiemTraNgoac(wchar_t* a)
+{
+	if ((*a == '\"') && (*(a + wcslen(a) - 1) == '\"'))
+	{
+		XoaNgoacKep(a);
+	}
+}
+
+void SaoChepChuoi(wchar_t* a, wchar_t* b)
+{
+	for (int i = 0; i < wcslen(b); i++)
+	{
+		*(a + i) = *(b + i);
+	}
+	*(a + wcslen(b)) = '\0';
+}
+
+void GhepChuoiDauPhay(wchar_t* a, wchar_t* b)
+{
+	int flag = wcslen(a);
+	*(a + flag) = ',';
+	*(a + flag + 1) = '\0';
+	flag = wcslen(a);
+	for (int i = flag; i < flag + wcslen(b); i++)
+	{
+		*(a + i) = *(b + i - flag);
+	}
+	*(a + flag + wcslen(b)) = '\0';
+}
+
+void XoaNgoacKep(wchar_t* a)
+{
+	for (int i = 0; i < wcslen(a) - 1; i++)
+	{
+		*(a + i) = *(a + i + 1);
+	}
+	*(a + wcslen(a) - 2) = '\0';
+}
+
+void GhepChuoi(wchar_t* a,wchar_t* b)
+{
+	int flag = wcslen(a);
+	for (int i = flag; i < flag + wcslen(b); i++)
+	{
+		*(a + i) = *(b + i - flag);
+	}
+	*(a + flag + wcslen(b)) = '\0';
+}
+
 void main()
 {
-	FILE* f1 = fopen("Thongtinsinhvien.csv", "rt");
-	DocFILECSV(f1);
+	char s1[] = "Thongtinsinhvien1.csv";
+	char s2[] = "Thongtinsinhvien2.csv";
+	DocFILECSV(s1);
 }
